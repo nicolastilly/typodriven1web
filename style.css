@@ -16,19 +16,8 @@ body {
     margin: 0;
     background: rgb(226, 193, 249);
     background: linear-gradient(90deg, rgba(226, 193, 249, 1) 0%, rgba(240, 255, 250, 1) 33%, rgba(251, 255, 228, 1) 66%, rgba(254, 218, 251, 1) 100%);
-    animation: gradientAnimation 45s ease infinite;
 }
-@keyframes gradientAnimation {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
+
 
 
 .parent {
@@ -117,6 +106,8 @@ h1 {
 #edito {
     height: 100vh;
 }
+
+
 
 
 
