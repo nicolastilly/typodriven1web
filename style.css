@@ -14,6 +14,7 @@ body {
     font-family: "Director-Light";
     font-weight: 100;
     margin: 0;
+
     background: rgb(226, 193, 249);
     background: linear-gradient(90deg, rgba(226, 193, 249, 1) 0%, rgba(240, 255, 250, 1) 33%, rgba(251, 255, 228, 1) 66%, rgba(254, 218, 251, 1) 100%);
 }
@@ -24,7 +25,6 @@ body {
     width: 100%;
     height: auto;
     grid-template-columns: 1fr;
-    /*grid-template-rows: repeat(6, 1fr);*/
     grid-template-rows: 20vh 50vh 50vh 100vh 130vh 7vh;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
@@ -37,25 +37,30 @@ body {
     grid-area: 1 / 1 / 2 / 2;
     place-self: center;
     width: 100%;
-    overflow: hidden; /* Cache le texte qui déborde */
-    white-space: nowrap; /* Empêche le texte de passer à la ligne */
+    overflow: hidden;
+    /* Cache le texte qui déborde */
+    white-space: nowrap;
+    /* Empêche le texte de passer à la ligne */
 }
 
 h1 {
     font-size: 86px;
-  color: #F34B40;
-  display: inline-block; /* Important pour l'animation */
-  animation: scrollText 45s linear infinite; /* Durée de 15s, mouvement linéaire, répétition infinie */
+    color: #F34B40;
+    display: inline-block;
+    /* Important pour l'animation */
+    animation: scrollText 45s linear infinite;
+    /* Durée de 15s, mouvement linéaire, répétition infinie */
 }
 
 @keyframes scrollText {
     from {
-      transform: translateX(0);
+        transform: translateX(0);
     }
+
     to {
-      transform: translateX(-100%);
+        transform: translateX(-100%);
     }
-  }
+}
 
 
 
