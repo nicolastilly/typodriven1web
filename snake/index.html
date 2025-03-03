@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Animation de bords avec défilement</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                overflow-x: hidden;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            /* Styles pour chaque section */
+            .section {
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+
+            /* Contenus des sections */
+            .content {
+                max-width: 800px;
+                text-align: center;
+                padding: 2rem;
+                color: white;
+            }
+
+            /* Couleurs différentes pour chaque section */
+            .section-1 {
+                background-color: #264653;
+            }
+
+            .section-2 {
+                background-color: #2a9d8f;
+            }
+
+            .section-3 {
+                background-color: #e9c46a;
+                color: #333;
+            }
+
+            .section-4 {
+                background-color: #f4a261;
+                color: #333;
+            }
+
+            .section-5 {
+                background-color: #e76f51;
+            }
+
+            /* Élément d'image qui va se déplacer */
+            #moving-image {
+                position: fixed;
+                width: 40px;
+                height: 40px;
+                background-image: url('tete.png');
+                /* Votre image de tête */
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                z-index: 101;
+                /* Au-dessus des bords */
+                transform-origin: center;
+            }
+
+            /* Conteneur pour les segments de bord */
+            #border-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                /* Ne pas intercepter les événements de la souris */
+                z-index: 100;
+            }
+
+            /* Styles communs pour tous les segments de bord */
+            .border-segment {
+                position: absolute;
+                background-repeat: no-repeat;
+                opacity: 0;
+                /* Initialement invisible */
+            }
+
+            /* Segment gauche */
+            #border-left {
+                top: 0;
+                left: 0;
+                width: 20px;
+                /* Ajustez selon l'épaisseur de votre bordure */
+                height: 100%;
+                background-image: url('border-left.png');
+                background-size: 100% 100%;
+                transform-origin: center top;
+                clip-path: inset(50% 0 50% 0);
+                /* Initialement masqué, visible seulement au milieu */
+            }
+
+            /* Segment supérieur */
+            #border-top {
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 20px;
+                /* Ajustez selon l'épaisseur de votre bordure */
+                background-image: url('border-top.png');
+                background-size: 100% 100%;
+                clip-path: inset(0 100% 0 0);
+                /* Initialement masqué */
+            }
+
+            /* Segment droit */
+            #border-right {
+                top: 0;
+                right: 20px;
+                /* Ajustez pour éviter la barre de défilement */
+                width: 20px;
+                /* Ajustez selon l'épaisseur de votre bordure */
+                height: 100%;
+                background-image: url('border-right.png');
+                background-size: 100% 100%;
+                clip-path: inset(0 0 100% 0);
+                /* Initialement masqué */
+            }
+
+            /* Segment inférieur */
+            #border-bottom {
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 20px;
+                /* Ajustez selon l'épaisseur de votre bordure */
+                background-image: url('border-bottom.png');
+                background-size: 100% 100%;
+                clip-path: inset(0 0 0 100%);
+                /* Initialement masqué */
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- Notre élément d'image qui se déplacera le long des contours -->
+        <div id="moving-image"></div>
+
+        <!-- Segments de bord distincts -->
+        <div id="border-container">
+            <div id="border-left" class="border-segment"></div>
+            <div id="border-top" class="border-segment"></div>
+            <div id="border-right" class="border-segment"></div>
+            <div id="border-bottom" class="border-segment"></div>
+        </div>
+
+        <!-- Les 5 sections (hauteurs de page) -->
+        <section class="section section-1">
+            <div class="content">
+                <h2>Section 1</h2>
+                <p>Défilez pour voir l'animation</p>
+            </div>
+        </section>
+
+        <section class="section section-2">
+            <div class="content">
+                <h2>Section 2</h2>
+                <p>L'animation progresse le long du bord supérieur</p>
+            </div>
+        </section>
+
+        <section class="section section-3">
+            <div class="content">
+                <h2>Section 3</h2>
+                <p>L'animation descend le long du bord droit</p>
+            </div>
+        </section>
+
+        <section class="section section-4">
+            <div class="content">
+                <h2>Section 4</h2>
+                <p>L'animation progresse le long du bord inférieur</p>
+            </div>
+        </section>
+
+        <section class="section section-5">
+            <div class="content">
+                <h2>Section 5</h2>
+                <p>L'animation remonte pour compléter le contour</p>
+            </div>
+        </section>
+
+        <!-- Scripts GSAP -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+        <script src="script.js"></script>
+    </body>
+
+</html>

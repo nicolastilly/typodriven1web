@@ -1,0 +1,116 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Pas de transition pour la tête pour éviter l'inertie */
+#snake-head {
+    transition: none;
+}
+
+body {
+    overflow-x: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Styles pour chaque section */
+.section {
+    height: 100vh;
+    /* Chaque section fait une hauteur d'écran */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Contenu des sections */
+.content {
+    max-width: 800px;
+    text-align: center;
+    padding: 2rem;
+    z-index: 10;
+}
+
+/* Titres des sections */
+.content h2 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+/* Paragraphes des sections */
+.content p {
+    font-size: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Couleurs différentes pour chaque section */
+.section-1 {
+    background-color: #264653;
+    color: white;
+}
+
+.section-2 {
+    background-color: #2a9d8f;
+    color: white;
+}
+
+.section-3 {
+    background-color: #e9c46a;
+    color: #333;
+}
+
+.section-4 {
+    background-color: #f4a261;
+    color: #333;
+}
+
+.section-5 {
+    background-color: #e76f51;
+    color: white;
+}
+
+/* Notre élément de ligne qui s'étendra le long des contours */
+#line-element {
+    position: fixed;
+    width: 20px;
+    /* Largeur fixe */
+    height: 20px;
+    /* Hauteur fixe au départ (forme carrée) */
+    background-color: #2ecc71;
+    /* Couleur verte pour le serpent */
+    left: 0;
+    top: 50vh;
+    /* Position initiale au milieu de la hauteur sur le bord gauche */
+    transform: translateY(-10px);
+    /* Pour centrer verticalement */
+    z-index: 100;
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+    border-radius: 4px;
+    /* Bords légèrement arrondis */
+}
+
+/* Le conteneur qui contiendra les segments de ligne */
+.line-segment {
+    position: fixed;
+    z-index: 100;
+    border-radius: 4px;
+    background-color: #2ecc71;
+    /* Couleur verte uniforme */
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+    /* Dimensions et position définies par JavaScript */
+}
+
+/* Tête du serpent */
+#snake-head {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background-image: url('snake-head.svg');
+    background-size: cover;
+    background-position: center;
+    z-index: 101;
+    /* Au-dessus du corps */
+    transform-origin: center center;
+}
