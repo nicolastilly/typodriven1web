@@ -19,14 +19,10 @@ function initAnimation() {
 
     // Position de départ (milieu gauche)
     const startY = windowHeight / 2;
-    const startYPercent = (startY / windowHeight) * 100;
 
     // Récupérer les éléments
     const movingImage = document.getElementById('moving-image');
-    const borderLeft = document.getElementById('border-left');
-    const borderTop = document.getElementById('border-top');
-    const borderRight = document.getElementById('border-right');
-    const borderBottom = document.getElementById('border-bottom');
+    const borderPath = document.getElementById('border-path');
 
     // Ajustez ces valeurs de rotation en fonction de l'orientation naturelle de votre image
     const rotations = {
@@ -36,40 +32,68 @@ function initAnimation() {
         left: 270    // Pour aller à gauche
     };
 
-    // Rendre tous les segments de bord visibles
-    gsap.set([borderLeft, borderTop, borderRight, borderBottom], {
-        opacity: 1
-    });
+    // Marge pour les bords
+    const margin = 20;
 
-    // Configuration initiale des clip-paths pour chaque segment
-    // Le segment gauche est initialement visible seulement au point de départ
-    gsap.set(borderLeft, {
-        clipPath: `inset(${startYPercent}% 0 ${100 - startYPercent}% 0)`
-    });
+    // Définir les coordonnées des coins et les rotations dans les deux sens
+    const corners = [
+        {
+            x: margin, y: startY,
+            forward: rotations.up,     // En descendant: vers le haut
+            backward: rotations.up     // En remontant: vers le haut
+        },
+        {
+            x: margin, y: margin,
+            forward: rotations.right,  // En descendant: vers la droite
+            backward: rotations.up   // En remontant: vers la droite
+        },
+        {
+            x: windowWidth - scrollbarOffset - margin, y: margin,
+            forward: rotations.down,   // En descendant: vers le bas
+            backward: rotations.right     // En remontant: vers le haut
+        },
+        {
+            x: windowWidth - scrollbarOffset - margin, y: windowHeight - margin,
+            forward: rotations.left,   // En descendant: vers la gauche
+            backward: rotations.down   // En remontant: vers le bas
+        },
+        {
+            x: margin, y: windowHeight - margin,
+            forward: rotations.up,     // En descendant: vers le haut
+            backward: rotations.left   // En remontant: vers la gauche
+        },
+        {
+            x: margin, y: startY,
+            forward: rotations.up,     // En descendant: vers le haut
+            backward: rotations.down   // En remontant: vers le bas
+        }
+    ];
 
-    // Les autres segments sont complètement masqués
-    gsap.set(borderTop, {
-        clipPath: `inset(0 100% 0 0)`
-    });
+    // Créer le chemin SVG pour le contour
+    const pathData = corners.map((corner, index) => {
+        return (index === 0) ? `M ${corner.x},${corner.y}` : `L ${corner.x},${corner.y}`;
+    }).join(" ");
 
-    gsap.set(borderRight, {
-        clipPath: `inset(0 0 100% 0)`
-    });
+    // Définir le chemin SVG
+    borderPath.setAttribute('d', pathData);
 
-    gsap.set(borderBottom, {
-        clipPath: `inset(0 0 0 100%)`
-    });
+    // Calculer la longueur totale du chemin
+    const pathLength = borderPath.getTotalLength();
+
+    // Configurer les propriétés initiales du chemin SVG
+    borderPath.style.strokeDasharray = pathLength;
+    borderPath.style.strokeDashoffset = pathLength;
 
     // Positionner l'image de tête au départ
     gsap.set(movingImage, {
-        left: 0,
-        top: startY - imageSize / 2, // Centrer verticalement
+        left: margin - imageSize / 2,
+        top: startY - imageSize / 2,
         rotation: rotations.up,
         opacity: 1
     });
 
-    // Créer la timeline d'animation
-    const tl = gsap.timeline({
+    // Créer la timeline d'animation pour le chemin SVG
+    const tlPath = gsap.timeline({
         scrollTrigger: {
             trigger: "body",
             start: "top top",
@@ -79,144 +103,156 @@ function initAnimation() {
         }
     });
 
-    // PHASE 1: MONTÉE LE LONG DU BORD GAUCHE
-    // Animation de la tête
-    tl.to(movingImage, {
-        top: 0,
-        duration: 0.2,
+    // Animation du tracé SVG (dessin progressif)
+    tlPath.to(borderPath, {
+        strokeDashoffset: 0, // Révéler progressivement tout le chemin
+        duration: 1,
         ease: "none"
     });
 
-    // Révélation du bord gauche (de bas en haut)
-    tl.to(borderLeft, {
-        clipPath: `inset(0 0 ${100 - startYPercent}% 0)`,
-        duration: 0.2,
-        ease: "none"
-    }, "<"); // Commencer en même temps
+    // Fonction pour calculer la position sur le chemin
+    function getPointAtLength(length) {
+        return borderPath.getPointAtLength(length);
+    }
 
-    // PHASE 2: DÉPLACEMENT LE LONG DU BORD SUPÉRIEUR
-    // Rotation de la tête au coin supérieur gauche
-    tl.to(movingImage, {
-        rotation: rotations.right,
-        duration: 0.01,
-        ease: "none"
+    // Créer la timeline d'animation pour l'image
+    const tlImage = gsap.timeline({
+        scrollTrigger: {
+            trigger: "body",
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1,
+            markers: false
+        }
     });
 
-    // Déplacement de la tête vers la droite
-    tl.to(movingImage, {
-        left: windowWidth - scrollbarOffset - imageSize,
-        duration: 0.19,
-        ease: "none"
+    // Distance de tolérance pour détecter les coins
+    const cornerTolerance = 10; // en pixels
+
+    // Variable pour stocker l'orientation actuelle et le dernier point
+    let currentRotation = rotations.up;
+    let lastProgress = 0;
+    let lastCornerIndex = 0;
+
+    // Animation de l'image le long du chemin
+    tlImage.to(movingImage, {
+        duration: 1,
+        ease: "none",
+        onUpdate: function () {
+            // Calculer la progression actuelle (0 à 1)
+            const progress = this.progress();
+
+            // Déterminer la direction du défilement
+            const isMovingForward = progress >= lastProgress;
+
+            // Calculer la longueur correspondante sur le chemin
+            const currentLength = pathLength * (1 - progress);
+
+            // Obtenir le point actuel sur le chemin
+            const point = getPointAtLength(pathLength - currentLength);
+
+            // Vérifier si nous sommes proche d'un coin
+            let foundCorner = false;
+
+            for (let i = 0; i < corners.length; i++) {
+                const corner = corners[i];
+
+                // Calculer la distance entre le point actuel et ce coin
+                const distance = Math.sqrt(
+                    Math.pow(point.x - corner.x, 2) +
+                    Math.pow(point.y - corner.y, 2)
+                );
+
+                // Si nous sommes suffisamment proche d'un coin, changer l'orientation
+                if (distance < cornerTolerance) {
+                    // Appliquer la rotation adaptée selon le sens du défilement
+                    currentRotation = isMovingForward ? corner.forward : corner.backward;
+                    lastCornerIndex = i;
+                    foundCorner = true;
+                    break;
+                }
+            }
+
+            // Si nous ne sommes pas sur un coin, déterminer l'orientation en fonction du segment
+            if (!foundCorner && !isNaN(point.x) && !isNaN(point.y)) {
+                // Dans ce cas, nous conservons l'orientation actuelle
+                // La rotation ne change qu'aux coins
+            }
+
+            // Mettre à jour la position et la rotation de l'image
+            gsap.set(movingImage, {
+                left: point.x - imageSize / 2,
+                top: point.y - imageSize / 2,
+                rotation: currentRotation
+            });
+
+            // Mettre à jour la dernière progression pour la prochaine frame
+            lastProgress = progress;
+        }
     });
-
-    // Révélation progressive du bord supérieur (de gauche à droite)
-    tl.to(borderTop, {
-        clipPath: `inset(0 0 0 0)`,
-        duration: 0.19,
-        ease: "none"
-    }, "<"); // Commencer en même temps
-
-    // PHASE 3: DESCENTE LE LONG DU BORD DROIT
-    // Rotation de la tête au coin supérieur droit
-    tl.to(movingImage, {
-        rotation: rotations.down,
-        duration: 0.01,
-        ease: "none"
-    });
-
-    // Déplacement de la tête vers le bas
-    tl.to(movingImage, {
-        top: windowHeight - imageSize,
-        duration: 0.19,
-        ease: "none"
-    });
-
-    // Révélation progressive du bord droit (de haut en bas)
-    tl.to(borderRight, {
-        clipPath: `inset(0 0 0 0)`,
-        duration: 0.19,
-        ease: "none"
-    }, "<"); // Commencer en même temps
-
-    // PHASE 4: DÉPLACEMENT LE LONG DU BORD INFÉRIEUR
-    // Rotation de la tête au coin inférieur droit
-    tl.to(movingImage, {
-        rotation: rotations.left,
-        duration: 0.01,
-        ease: "none"
-    });
-
-    // Déplacement de la tête vers la gauche
-    tl.to(movingImage, {
-        left: 0,
-        duration: 0.19,
-        ease: "none"
-    });
-
-    // Révélation progressive du bord inférieur (de droite à gauche)
-    tl.to(borderBottom, {
-        clipPath: `inset(0 0 0 0)`,
-        duration: 0.19,
-        ease: "none"
-    }, "<"); // Commencer en même temps
-
-    // PHASE 5: REMONTÉE LE LONG DU BORD GAUCHE
-    // Rotation de la tête au coin inférieur gauche
-    tl.to(movingImage, {
-        rotation: rotations.up + 360, // Ajouter 360 pour éviter la rotation inverse
-        duration: 0.01,
-        ease: "none"
-    });
-
-    // Déplacement de la tête vers le haut jusqu'au point de départ
-    tl.to(movingImage, {
-        top: startY - imageSize / 2,
-        duration: 0.19,
-        ease: "none"
-    });
-
-    // Révélation complète du bord gauche
-    tl.to(borderLeft, {
-        clipPath: `inset(0 0 0 0)`,
-        duration: 0.19,
-        ease: "none"
-    }, "<"); // Commencer en même temps
 
     // Gérer le redimensionnement de la fenêtre
     window.addEventListener('resize', function () {
-        // Recalculer les dimensions et valeurs clés
+        // Mettre à jour les dimensions
         const newWindowWidth = window.innerWidth;
         const newWindowHeight = window.innerHeight;
         const newStartY = newWindowHeight / 2;
-        const newStartYPercent = (newStartY / newWindowHeight) * 100;
 
-        // Réinitialiser les propriétés pour les nouveaux dimensions
-        gsap.set(borderLeft, {
-            clipPath: `inset(${newStartYPercent}% 0 ${100 - newStartYPercent}% 0)`
-        });
+        // Mettre à jour les coordonnées des coins
+        corners[0] = {
+            x: margin, y: newStartY,
+            forward: rotations.up, backward: rotations.up
+        };
+        corners[1] = {
+            x: margin, y: margin,
+            forward: rotations.right, backward: rotations.right
+        };
+        corners[2] = {
+            x: newWindowWidth - scrollbarOffset - margin, y: margin,
+            forward: rotations.down, backward: rotations.up
+        };
+        corners[3] = {
+            x: newWindowWidth - scrollbarOffset - margin, y: newWindowHeight - margin,
+            forward: rotations.left, backward: rotations.down
+        };
+        corners[4] = {
+            x: margin, y: newWindowHeight - margin,
+            forward: rotations.up, backward: rotations.left
+        };
+        corners[5] = {
+            x: margin, y: newStartY,
+            forward: rotations.up, backward: rotations.down
+        };
 
-        gsap.set(borderTop, {
-            clipPath: `inset(0 100% 0 0)`
-        });
+        // Recréer le chemin SVG
+        const newPathData = corners.map((corner, index) => {
+            return (index === 0) ? `M ${corner.x},${corner.y}` : `L ${corner.x},${corner.y}`;
+        }).join(" ");
 
-        gsap.set(borderRight, {
-            clipPath: `inset(0 0 100% 0)`
-        });
+        borderPath.setAttribute('d', newPathData);
 
-        gsap.set(borderBottom, {
-            clipPath: `inset(0 0 0 100%)`
-        });
+        // Recalculer la longueur du chemin
+        const newPathLength = borderPath.getTotalLength();
+        borderPath.style.strokeDasharray = newPathLength;
 
-        // Réinitialiser la position de la tête
+        // Réinitialiser la position de départ de l'image
         gsap.set(movingImage, {
-            left: 0,
+            left: margin - imageSize / 2,
             top: newStartY - imageSize / 2,
             rotation: rotations.up,
             opacity: 1
         });
 
-        // Invalider et rafraîchir l'animation
-        tl.invalidate();
+        // Réinitialiser les variables de suivi
+        currentRotation = rotations.up;
+        lastProgress = 0;
+        lastCornerIndex = 0;
+
+        // Invalider les animations
+        tlPath.invalidate();
+        tlImage.invalidate();
+
+        // Rafraîchir ScrollTrigger
         ScrollTrigger.refresh();
     });
 }

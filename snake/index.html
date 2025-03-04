@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Animation de bords avec défilement</title>
+        <title>Animation de contour avec SVG</title>
         <style>
             * {
                 margin: 0;
@@ -62,17 +62,17 @@
                 position: fixed;
                 width: 40px;
                 height: 40px;
-                background-image: url('tete.png');
+                background-image: url('head-image.png');
                 /* Votre image de tête */
                 background-size: contain;
                 background-repeat: no-repeat;
                 background-position: center;
                 z-index: 101;
-                /* Au-dessus des bords */
+                /* Au-dessus du SVG */
                 transform-origin: center;
             }
 
-            /* Conteneur pour les segments de bord */
+            /* SVG conteneur */
             #border-container {
                 position: fixed;
                 top: 0;
@@ -84,66 +84,25 @@
                 z-index: 100;
             }
 
-            /* Styles communs pour tous les segments de bord */
-            .border-segment {
+            /* Styles pour le contour SVG */
+            #border-svg {
+                width: 100%;
+                height: 100%;
                 position: absolute;
-                background-repeat: no-repeat;
-                opacity: 0;
-                /* Initialement invisible */
-            }
-
-            /* Segment gauche */
-            #border-left {
                 top: 0;
                 left: 0;
-                width: 20px;
-                /* Ajustez selon l'épaisseur de votre bordure */
-                height: 100%;
-                background-image: url('border-left.png');
-                background-size: 100% 100%;
-                transform-origin: center top;
-                clip-path: inset(50% 0 50% 0);
-                /* Initialement masqué, visible seulement au milieu */
             }
 
-            /* Segment supérieur */
-            #border-top {
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 20px;
-                /* Ajustez selon l'épaisseur de votre bordure */
-                background-image: url('border-top.png');
-                background-size: 100% 100%;
-                clip-path: inset(0 100% 0 0);
-                /* Initialement masqué */
-            }
-
-            /* Segment droit */
-            #border-right {
-                top: 0;
-                right: 20px;
-                /* Ajustez pour éviter la barre de défilement */
-                width: 20px;
-                /* Ajustez selon l'épaisseur de votre bordure */
-                height: 100%;
-                background-image: url('border-right.png');
-                background-size: 100% 100%;
-                clip-path: inset(0 0 100% 0);
-                /* Initialement masqué */
-            }
-
-            /* Segment inférieur */
-            #border-bottom {
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 20px;
-                /* Ajustez selon l'épaisseur de votre bordure */
-                background-image: url('border-bottom.png');
-                background-size: 100% 100%;
-                clip-path: inset(0 0 0 100%);
-                /* Initialement masqué */
+            /* Styles pour le tracé du contour */
+            #border-path {
+                fill: none;
+                stroke: #ff0000;
+                /* Couleur du contour */
+                stroke-width: 5;
+                /* Épaisseur du contour */
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                /* Les propriétés stroke-dasharray et stroke-dashoffset seront définies par JavaScript */
             }
         </style>
     </head>
@@ -152,12 +111,12 @@
         <!-- Notre élément d'image qui se déplacera le long des contours -->
         <div id="moving-image"></div>
 
-        <!-- Segments de bord distincts -->
+        <!-- Conteneur SVG pour le contour -->
         <div id="border-container">
-            <div id="border-left" class="border-segment"></div>
-            <div id="border-top" class="border-segment"></div>
-            <div id="border-right" class="border-segment"></div>
-            <div id="border-bottom" class="border-segment"></div>
+            <svg id="border-svg" xmlns="http://www.w3.org/2000/svg">
+                <!-- Le chemin sera créé dynamiquement par JavaScript -->
+                <path id="border-path" d=""></path>
+            </svg>
         </div>
 
         <!-- Les 5 sections (hauteurs de page) -->
