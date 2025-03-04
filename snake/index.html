@@ -94,15 +94,20 @@
             }
 
             /* Styles pour le tracé du contour */
-            #border-path {
+            /* #border-path {
                 fill: none;
-                stroke: #ff0000;
-                /* Couleur du contour */
-                stroke-width: 5;
-                /* Épaisseur du contour */
+                stroke: #951919;
+                stroke-width: 22;
                 stroke-linecap: round;
                 stroke-linejoin: round;
-                /* Les propriétés stroke-dasharray et stroke-dashoffset seront définies par JavaScript */
+            } */
+            #border-path {
+                fill: none;
+                stroke: url(#pattern);
+                /* Utilisation du motif défini dans le SVG */
+                stroke-width: 22;
+                stroke-linecap: round;
+                stroke-linejoin: round;
             }
         </style>
     </head>
@@ -112,9 +117,47 @@
         <div id="moving-image"></div>
 
         <!-- Conteneur SVG pour le contour -->
+        <!-- <div id="border-container">
+            <svg id="border-svg" xmlns="http://www.w3.org/2000/svg">
+                <path id="border-path" d=""></path>
+            </svg>
+        </div> -->
+
+        <!-- Conteneur SVG avec le motif intégré -->
         <div id="border-container">
             <svg id="border-svg" xmlns="http://www.w3.org/2000/svg">
-                <!-- Le chemin sera créé dynamiquement par JavaScript -->
+                <defs>
+                    <!-- Définition du motif (pattern) -->
+                    <!-- <pattern id="pattern" patternUnits="userSpaceOnUse" width="12" height="12">
+
+                        <rect width="12" height="12" fill="#951919" />
+
+                        <path d="M0,12 L12,0" stroke="#e3b331" stroke-width="3" />
+                        <path d="M12,12 L0,0" stroke="#e3b331" stroke-width="3" />
+                    </pattern> -->
+
+
+                    <pattern id="pattern" width="6" height="6" patternTransform="rotate(40)scale(2)"
+                        patternUnits="userSpaceOnUse">
+                        <rect width="100%" height="100%" fill="#941919" />
+                        <path fill="#fa9129"
+                            d="M-10-10A10 10 0 0 0-20 0a10 10 0 0 0 10 10A10 10 0 0 1 0 0a10 10 0 0 0-10-10m20 0A10 10 0 0 0 0 0a10 10 0 0 1 10 10A10 10 0 0 1 20 0a10 10 0 0 0-10-10m20 0A10 10 0 0 0 20 0a10 10 0 0 1 10 10A10 10 0 0 1 40 0a10 10 0 0 0-10-10m-40 20a10 10 0 0 0-10 10 10 10 0 0 0 10 10A10 10 0 0 1 0 20a10 10 0 0 0-10-10m20 0A10 10 0 0 0 0 20a10 10 0 0 1 10 10 10 10 0 0 1 10-10 10 10 0 0 0-10-10m20 0a10 10 0 0 0-10 10 10 10 0 0 1 10 10 10 10 0 0 1 10-10 10 10 0 0 0-10-10" />
+                    </pattern>
+
+                    <rect width="800%" height="800%" fill="url(#a)" />
+
+
+
+
+
+
+
+
+
+
+
+                </defs>
+                <!-- Le chemin sera dessiné dynamiquement par JavaScript -->
                 <path id="border-path" d=""></path>
             </svg>
         </div>
