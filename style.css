@@ -129,6 +129,31 @@ ul {
 }
 
 
+a {
+    display: inline;
+    position: relative;
+    color: #3D241C;
+    text-decoration: none;
+}
+
+a:after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 2px;
+    width: 0%;
+    left: 0px;
+    height: 6px;
+    transition: 0.25s cubic-bezier(0.72, -0.01, 0.19, 0.92);
+    background: #3D241C;
+}
+
+
+a:hover:after {
+    width: 100%;
+}
+
+
 
 
 
